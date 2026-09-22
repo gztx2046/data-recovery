@@ -4,24 +4,55 @@
 
 **取证数据恢复工具集 · Forensic Data Recovery Toolkit**
 
-离线 · 纯 Python · 一个入口覆盖 SQLite / 微信 / iOS / Android
+**一个给 AI 用的 Agent 技能** · 离线 · 纯 Python · 一个入口覆盖 SQLite / 微信 / iOS / Android
 
-*Offline · Pure Python · One entry point for SQLite / WeChat / iOS / Android*
+*An AI agent skill · Offline · Pure Python · One entry point for SQLite / WeChat / iOS / Android*
 
-[![Python](https://img.shields.io/badge/Python-3.8%2B-3776AB?logo=python&logoColor=white)](#-requirements--安装)
+[![Agent Skill](https://img.shields.io/badge/Agent%20Skill-SKILL.md-8957E5)](#-this-is-an-ai-agent-skill)
+[![Python](https://img.shields.io/badge/Python-3.8%2B-3776AB?logo=python&logoColor=white)](#-requirements--install)
 [![License](https://img.shields.io/badge/License-MIT-3DA639.svg)](LICENSE)
-[![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux-6e7681)](#-requirements--安装)
-[![Tests](https://img.shields.io/badge/Tests-21%20passing%20%2B%203%20optional-2ea043)](#-testing--测试)
+[![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux-6e7681)](#-requirements--install)
+[![Tests](https://img.shields.io/badge/Tests-21%20passing%20%2B%203%20optional-2ea043)](#-testing)
 
 **[English](#english)** | **[简体中文](#简体中文)**
 
-[Features](#-features) • [Quick Start](#-quick-start) • [Testing](#-testing) • [Legal](#%EF%B8%8F-legal--compliance)
+[Agent Skill](#-this-is-an-ai-agent-skill) • [Features](#-features) • [Quick Start](#-quick-start) • [Testing](#-testing) • [Legal](#%EF%B8%8F-legal--compliance)
 
 </div>
 
 ---
 
 # English
+
+## 🤖 This is an AI agent skill
+
+This repository is not just a CLI toolkit — it is packaged as an **agent skill**: a capability bundle that an AI assistant loads and invokes on the user's behalf. Its **primary consumer is the agent**; running the scripts by hand is the secondary path.
+
+Three layers, three audiences:
+
+| File | Audience | Role |
+|---|---|---|
+| `SKILL.md` | the AI agent | Machine-facing entry. The YAML frontmatter (`name`, `description`) is what the agent reads to decide **whether to load** the skill; the body carries decision rules, scenario routing, refusal boundaries and safety gates. |
+| `scripts/*.py` | the AI agent (or you) | The executable engine. Each script runs standalone, takes plain CLI arguments, and can emit machine-readable `--json`. |
+| `README.md` | humans | This overview page. |
+
+**Installing it into an agent.** Copy the whole folder into the agent's skills directory so the folder name matches the `name:` field in the `SKILL.md` frontmatter. There is no build step and no required dependency (only optional `cryptography`, for WeChat decryption). Agents in the WorkBuddy / CodeBuddy family discover skills from a `skills/` root; any agent that can read a file and run a shell command can use this repo as-is.
+
+**What makes it agent-friendly**
+
+- **One entry, auto-routed** — `recover_orchestrator.py` decides single file / directory / device from the input, so the agent never has to pick the right tool first.
+- **Machine-readable output** — the recovery scripts support `--json`, so results are parsed rather than screen-scraped.
+- **Hard safety gates** — destructive steps (device backup, APK downgrade, archive extraction) refuse to run without an explicit `--i-understand`. This exists specifically so an agent cannot take a risky action on its own initiative.
+- **Refusal boundaries written into `SKILL.md`** — the skill tells the agent when **not** to proceed (no third-party devices, no data it is not authorized to examine). These boundaries are instructions the model executes, not decorative prose.
+
+**When an agent should load this skill** — the trigger conditions for the agent's decision layer:
+
+- the user wants deleted rows/records recovered from a `.db` / SQLite file, or the database looks empty;
+- the user supplies their own IMEI + UIN together with an `EnMicroMsg.db` and asks to unlock or inspect it;
+- the user points at an iOS backup folder or an Android export directory and wants deleted data back;
+- the user has an Android device they are authorized to examine and wants app data pulled without root.
+
+Conversely, when the user cannot show ownership or authorization, the skill makes the agent **stop** — that is designed behaviour, not a missing feature.
 
 ## ✨ Features
 
@@ -100,11 +131,11 @@ The full five-dimension scoring and community comparison live in `SKILL.md`. **A
 
 ```
 data-recovery/
-├── SKILL.md                   # WorkBuddy skill doc (scoring / comparison / sources)
-├── README.md                  # this file
+├── SKILL.md                   # agent-facing entry: frontmatter + decision rules + scoring
+├── README.md                  # this file (for humans)
 ├── LICENSE                    # MIT
 ├── .gitignore
-├── scripts/
+├── scripts/                   # the engine an agent invokes
 │   ├── sqlite_recover.py       # core recovery engine
 │   ├── wechat_key.py           # WeChat key derivation + decryption
 │   ├── ios_backup_recover.py   # iOS backup scanning
@@ -122,6 +153,36 @@ data-recovery/
 ---
 
 # 简体中文
+
+## 🤖 这是一个给 AI 用的 Agent 技能
+
+这个仓库不只是"给人敲命令行的工具"，它同时是一个 **Agent 技能包**——一份交给 AI 助手加载、由 AI 代你调用的能力包。它的**第一使用者是 AI**，人手动跑脚本是第二路径。
+
+三层结构，三种读者：
+
+| 文件 | 读者 | 作用 |
+|---|---|---|
+| `SKILL.md` | AI | 面向机器的入口。开头的 `name` / `description` 是 AI 用来判断**要不要加载**这个技能的元信息；正文写的是决策规则、场景路由、拒答边界和安全闸门。 |
+| `scripts/*.py` | AI（或你） | 可执行的引擎。每个脚本都能独立跑，参数简单，支持 `--json` 输出机器可读结果。 |
+| `README.md` | 人 | 就是本页，给人看的概览。 |
+
+**怎么装进一个 AI**：把整个文件夹放进该 AI 的技能目录，文件夹名与 `SKILL.md` 开头的 `name` 保持一致即可。没有构建步骤、没有必需依赖（只有微信解密需要可选的 `cryptography`）。WorkBuddy / CodeBuddy 这类 AI 从 `skills/` 目录发现技能；任何能读文件、能执行命令的 AI 都能直接用本仓库，不用改代码。
+
+**为什么它对 AI 友好**
+
+- **一个入口自动分流**——输入是文件、目录还是设备，由 `recover_orchestrator.py` 自己判断，AI 不需要先猜该用哪个脚本。
+- **输出机器可读**——恢复脚本都支持 `--json`，AI 直接解析结果，不用去"读屏幕"。
+- **硬安全闸门**——设备备份、降级安装、解压这些有风险的步骤，没有显式加上 `--i-understand` 一律拒绝执行。这条是专门用来**不让 AI 自作主张**的。
+- **拒答边界写进了 `SKILL.md`**——技能明确告诉 AI 什么时候**不该动手**（非本人设备、无授权的数据）。这些边界是写给模型执行的指令，不是给人看的装饰文字。
+
+**AI 应该在什么时候加载它**（触发条件）：
+
+- 用户要恢复某个 `.db` 文件里被删的记录，或者这个库看起来是空的；
+- 用户提供自己的 IMEI + UIN 和一个 `EnMicroMsg.db`，要求解锁 / 查看；
+- 用户指着一个 iOS 备份目录或 Android 导出目录，想把删掉的数据找回来；
+- 用户有一台自己有权处理的 Android 设备，想免 root 取出应用数据。
+
+反过来，当用户拿不出归属 / 授权依据时，这个技能会让 AI 停手——这是**设计好的行为**，不是缺功能。
 
 ## ✨ 功能
 
@@ -200,11 +261,11 @@ python tests/run_all.py --full   # 另加 3 项需 cryptography
 
 ```
 data-recovery/
-├── SKILL.md                   # WorkBuddy 技能说明（含评分 / 对比 / 技术来源）
-├── README.md                  # 本文件
+├── SKILL.md                   # 面向 AI 的入口：元信息 + 决策规则 + 评分
+├── README.md                  # 本文件（给人看）
 ├── LICENSE                    # MIT
 ├── .gitignore
-├── scripts/
+├── scripts/                   # AI 实际调用的引擎
 │   ├── sqlite_recover.py       # 核心恢复引擎
 │   ├── wechat_key.py           # 微信密钥推导 + 解密
 │   ├── ios_backup_recover.py   # iOS 备份扫描
