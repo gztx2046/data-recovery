@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+.venv/
+venv/
+env/
+.env
+
+# 编辑器 / 系统
+.DS_Store
+Thumbs.db
+
+# 测试 / 工具临时产物（若落在仓库内）
+*.ab
+*.tar
+*.tar.gz
+backup_*/
