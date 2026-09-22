@@ -1,8 +1,14 @@
 <div align="center">
 
-# 🔍 data-recovery
+# 🔍 Exhumer
 
-**取证数据恢复工具集 · Forensic Data Recovery Toolkit**
+**掘尸人 · 取证数据恢复工具集**
+
+*Forensic Data Recovery Toolkit*
+
+**把删掉的数据，从数据库的坟里挖回来。**
+
+*Digging deleted data back out of the grave.*
 
 **一个给 AI 用的 Agent 技能** · 离线 · 纯 Python · 一个入口覆盖 SQLite / 微信 / iOS / Android
 
@@ -24,6 +30,10 @@
 
 # English
 
+## Why "Exhumer"?
+
+To **exhume** is to dig something buried back out of the ground — the examiner's word for retrieving a body that has already been put away. This toolkit does exactly that to deleted data: the database has already closed the lid, and we dig the records back out of the page slack, freeblocks and WAL history underneath.
+
 ## 🤖 This is an AI agent skill
 
 This repository is not just a CLI toolkit — it is packaged as an **agent skill**: a capability bundle that an AI assistant loads and invokes on the user's behalf. Its **primary consumer is the agent**; running the scripts by hand is the secondary path.
@@ -36,7 +46,7 @@ Three layers, three audiences:
 | `scripts/*.py` | the AI agent (or you) | The executable engine. Each script runs standalone, takes plain CLI arguments, and can emit machine-readable `--json`. |
 | `README.md` | humans | This overview page. |
 
-**Installing it into an agent.** Copy the whole folder into the agent's skills directory so the folder name matches the `name:` field in the `SKILL.md` frontmatter. There is no build step and no required dependency (only optional `cryptography`, for WeChat decryption). Agents in the WorkBuddy / CodeBuddy family discover skills from a `skills/` root; any agent that can read a file and run a shell command can use this repo as-is.
+**Installing it into an agent.** Copy the whole folder into the agent's skills directory so the folder name matches the `name:` field in the `SKILL.md` frontmatter (`exhumer`). There is no build step and no required dependency (only optional `cryptography`, for WeChat decryption). Agents in the WorkBuddy / CodeBuddy family discover skills from a `skills/` root; any agent that can read a file and run a shell command can use this repo as-is.
 
 **What makes it agent-friendly**
 
@@ -130,7 +140,7 @@ The full five-dimension scoring and community comparison live in `SKILL.md`. **A
 ## 📁 Project Structure
 
 ```
-data-recovery/
+exhumer/
 ├── SKILL.md                   # agent-facing entry: frontmatter + decision rules + scoring
 ├── README.md                  # this file (for humans)
 ├── LICENSE                    # MIT
@@ -154,6 +164,10 @@ data-recovery/
 
 # 简体中文
 
+## 为什么叫 Exhumer？
+
+**exhume** 是法医的词——把已经埋进土里的东西重新掘出来验。这套工具对删掉的数据做的事一模一样：数据库那边已经把盖子盖上了，它从底下的页未分配区、freeblock、WAL 历史页里，把记录重新掘出来。
+
 ## 🤖 这是一个给 AI 用的 Agent 技能
 
 这个仓库不只是"给人敲命令行的工具"，它同时是一个 **Agent 技能包**——一份交给 AI 助手加载、由 AI 代你调用的能力包。它的**第一使用者是 AI**，人手动跑脚本是第二路径。
@@ -166,7 +180,7 @@ data-recovery/
 | `scripts/*.py` | AI（或你） | 可执行的引擎。每个脚本都能独立跑，参数简单，支持 `--json` 输出机器可读结果。 |
 | `README.md` | 人 | 就是本页，给人看的概览。 |
 
-**怎么装进一个 AI**：把整个文件夹放进该 AI 的技能目录，文件夹名与 `SKILL.md` 开头的 `name` 保持一致即可。没有构建步骤、没有必需依赖（只有微信解密需要可选的 `cryptography`）。WorkBuddy / CodeBuddy 这类 AI 从 `skills/` 目录发现技能；任何能读文件、能执行命令的 AI 都能直接用本仓库，不用改代码。
+**怎么装进一个 AI**：把整个文件夹放进该 AI 的技能目录，文件夹名与 `SKILL.md` 开头的 `name`（`exhumer`）保持一致即可。没有构建步骤、没有必需依赖（只有微信解密需要可选的 `cryptography`）。WorkBuddy / CodeBuddy 这类 AI 从 `skills/` 目录发现技能；任何能读文件、能执行命令的 AI 都能直接用本仓库，不用改代码。
 
 **为什么它对 AI 友好**
 
@@ -260,7 +274,7 @@ python tests/run_all.py --full   # 另加 3 项需 cryptography
 ## 📁 目录结构
 
 ```
-data-recovery/
+exhumer/
 ├── SKILL.md                   # 面向 AI 的入口：元信息 + 决策规则 + 评分
 ├── README.md                  # 本文件（给人看）
 ├── LICENSE                    # MIT

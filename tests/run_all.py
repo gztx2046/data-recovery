@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-run_all.py  —  data-recovery 套件自测（合成数据，无需真实设备/库）
+run_all.py  —  Exhumer 套件自测（合成数据，无需真实设备/库）
 ==============================================================
 覆盖：
   T1 普通 DELETE → 页 slack 恢复

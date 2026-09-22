@@ -1,10 +1,13 @@
 ---
-name: data-recovery
-description: 取证级数据恢复工具集——SQLite 删除记录恢复（页 slack/freeblock/WAL/journal）、微信 EnMicroMsg.db 密钥推导与解密、iOS 备份与 Android 导出目录的批量恢复，单一编排入口自动路由。纯标准库，可选 cryptography 做 SQLCipher 解密。
+name: exhumer
+description: Exhumer（掘尸人）——取证级数据恢复 Agent 技能。SQLite 删除记录恢复（页 slack/freeblock/WAL/journal + 全文件深度雕刻）、微信 EnMicroMsg.db 密钥推导与解密、iOS 备份与 Android 导出目录批量恢复，单一编排入口自动路由。纯标准库，可选 cryptography 做 SQLCipher 解密。
 version: 2.2
 ---
 
-# data-recovery（取证数据恢复工具集 v2.2）
+# Exhumer（掘尸人）· 取证数据恢复工具集 v2.2
+
+> **名字由来**：`exhume` 是法医的词——把埋进土里的东西重新掘出来验。这套工具对删掉的数据做的事一模一样：数据库那边已经把盖子盖上了，它从底下的页未分配区、freeblock、WAL 历史页里，把记录重新掘出来。
+> （原名 `data-recovery` 在 GitHub 上有 1718 个近名仓库，辨识度为零，故更名。详见 §7。）
 
 ## 0. 这是什么：一个给 AI 用的 Agent 技能
 
@@ -66,7 +69,7 @@ version: 2.2
 
 > 注：上表均为本工具集的**主观自评对照**，存在为抬高本项目而压低竞品的利益冲突；无权威来源，可信度有限，仅供内部参照。其中 FQLite / Avilla / ForensicsTool / bring2lite / Undark 的分值已较早期版本上调至不刻意压低的合理区间（早期版本把 FQLite 压到 4.0、Avilla 压到 3.6，实为注水分）。
 
-**本工具集（data-recovery v2.2）评分：**
+**本工具集（Exhumer v2.2）评分：**
 
 | 维度 | 分 | 理由 |
 |---|---|---|
@@ -88,7 +91,7 @@ version: 2.2
 ## 2. 文件结构
 
 ```
-data-recovery/
+exhumer/
 ├── SKILL.md
 ├── scripts/
 │   ├── sqlite_recover.py       核心引擎：删除记录恢复 + WAL/journal + 深度雕刻 + 可选解密
@@ -219,18 +222,19 @@ MVT 是移动取证基线标杆、IPED 是工业级桌面 GUI。本工具不替�
 
 ## 7. 复盘日志
 
+- **更名（v2.2 同版）**：原名 `data-recovery` 在 GitHub 上有 **1718** 个近名仓库（实测），辨识度为零。撞名实测后排除神话系（osiris 2616 / charon 1457 / revenant 736 更撞）与已被同类占用的词（`exhume` 被 forensicxlab 占、`resurgam` 被 duriantaco 占），选定 **Exhumer**（撞名 27，同名的 `axolotl-logic/Exhumer` 已废弃）。同步改动：技能目录名 `exhumer/`、`SKILL.md` frontmatter `name: exhumer`、README 标题与全篇、GitHub 仓库名与 git remote。GitHub 改名后旧链接 301 跳转；已被 fork 的会断。
 - **v2.0 重建**：原 `.qclaw` 工程树在本环境丢失，按“取长补短”规格从零重建并补了端到端测试。
   - 关键修正：未分配区方向（之前把 slack 区间算反，导致普通 DELETE 0 命中）；freeblock 头破坏记录头的问题用文本片段雕刻兜底；SQLCipher 解密同时支持 hex 字符串与原始字节。
   - 验证：合成数据 12/12 通过（slack / WAL / 无 false-positive / freeblock / 微信 key 命中与拒识 / iOS 扩展名与魔数 / 编排器双分支 / 端到端加密库链路）。
 - **v1.x**（早期）：仅 freelist + 整文件文本匹配，漏掉绝大多数普通 DELETE 残留——已被 v2 引擎取代。
-- **v2.1 优化（本轮）**：按用户要求补齐 v2.0 自评暴露的三个弱项/缺失。
+- **v2.1 优化**：按用户要求补齐 v2.0 自评暴露的三个弱项/缺失。
   - C 引擎：新增**深度雕刻**（全文件 + WAL/Journal 帧镜像字符串扫描），对齐 FQLite 纯 carving 深度；碎片过滤“活记录子串”降误报。T9 验证（文件尾游离残留只有雕刻能命中）。
   - B 微信密钥：修掉 `subprocess` 缺失 import；候选扩到 4 种拼接；**`verify` 改为块 0 页大小自探测 + 多候选穷举**，消除 4096 假阳性（页号 IV 使块 0 与页大小无关）。新增 `--scan-backup` 扫残留 hex key。T11 验证（非默认页大小 1024 正确命中）。
   - A 免 root 降级：新脚本 `apk_downgrade.py`（check/version/backup/downgrade/extract/pull/workflow），**所有有风险操作强制 `--i-understand`**，解压依赖 abe.jar+Java 缺失时只指引。T10 验证命令构造与安全闸门。
   - Android 拉取：新 `android_triage.pull_device` 接通 `apk_downgrade` 备份路径 + `discover_packages` 关注包过滤，未确认拒绝。T12 验证。
   - 验证：标准 21/21 通过 + 3 项 SKIP（T5/T8/T11 需 cryptography，不计入通过/失败）；`--full` 26/26 通过。新增 T13 实测拦截 tar 路径穿越。
   - 诚实边界：微信密钥“来源轮换”在无 root 下仍受 IMEI+UIN 上限（完全突破需 root/Frida，超出范围）；免 root 降级/真机拉取命令层已验证但真机实战未跑；通用 SQLCipher(KDF/HMAC) 故意不实现，避免错误加密实现误导。
-- **v2.2 审计驱动的 P0/P1 闭环（本轮）**：独立审计（取证正确性 / 工程质量与安全 / 竞品）后，按用户要求修掉四类问题。
+- **v2.2 审计驱动的 P0/P1 闭环**：独立审计（取证正确性 / 工程质量与安全 / 竞品）后，按用户要求修掉四类问题。
   - 安全（P0）：`apk_downgrade.extract_ab` 原 `tarfile.extractall` 未防路径穿越（CVE-2007-4559）。新增 `_safe_extract_tar`，逐个成员校验绝对路径 / `..` 段 / 落点越界，硬链接与符号链接目标一并校验，越界即整体拒绝。T13 新增真实拦截测试（构造含 `../escape.txt` 的恶意 tar，验证被拒且无越界落盘）。
   - 测试诚信（P0）：`tests/run_all.py` 原把“缺 cryptography 时 T5/T8/T11”用 `check(...,True)` 记通过，凑出“24/24 全过”假象。改为 `skip()` 明确标记 SKIP，不计入通过数也不算失败；汇总行如实显示“21/21 通过，3 跳过 / 26/26 通过”。
   - AES 标注（P1）：微信加密原错标 AES-256；MD5 摘要为 16 字节，实为 **AES-128**。已在 `wechat_key.py` 与 `sqlite_recover.py` 的注释/文档统一更正（cryptography 按密钥长度自动选 128/192/256，若日后拿到 32 字节密钥即 AES-256）。
